@@ -19,22 +19,22 @@
 
 // User settings are below here
 
-const bool getExternalIP = true;                              // Set to false to disable querying external IP
+const bool getExternalIP = false;                              // Set to false to disable querying external IP
 
 const bool getTime = true;                                    // Set to false to disable querying for the time
-const int timeZone = -5;                                      // Timezone (-5 is EST)
+const int timeZone = +1;                                      // Timezone (-5 is EST)
 
 const bool enableMDNSServices = true;                         // Use mDNS services, must be enabled for ArduinoOTA
 
 const unsigned int captureBufSize = 150;                      // Size of the IR capture buffer.
 
 // WEMOS users may need to adjust pins for compatibility
-const int pinr1 = 14;                                         // Receiving pin
-const int pins1 = 4;                                          // Transmitting preset 1
-const int pins2 = 5;                                          // Transmitting preset 2
-const int pins3 = 12;                                         // Transmitting preset 3
-const int pins4 = 13;                                         // Transmitting preset 4
-const int configpin = 10;                                     // Reset Pin
+const int pinr1 = 14; //pin D5 on wemos d1 mini                                        // Receiving pin
+const int pins1 = 12; //pin D6 on wemos d1 mini                                          // Transmitting preset 1
+// const int pins2 = 12;                                          // Transmitting preset 2
+// const int pins3 = 12;                                         // Transmitting preset 3
+// const int pins4 = 11;                                         // Transmitting preset 4
+const int configpin = 5;                                     // Reset Pin
 
 // User settings are above here
 const int ledpin = LED_BUILTIN;                               // Built in LED defined for WEMOS people
@@ -47,8 +47,8 @@ char port_str[6] = "80";
 char user_id[60] = "";
 const char* fingerprint = "8D 83 C3 5F 0A 09 84 AE B0 64 39 23 8F 05 9E 4D 5E 08 60 06";
 
-char static_ip[16] = "10.0.1.10";
-char static_gw[16] = "10.0.1.1";
+char static_ip[16] = "192.168.178.233";
+char static_gw[16] = "192.168.178.1";
 char static_sn[16] = "255.255.255.0";
 
 DynamicJsonDocument deviceState(1024);
@@ -61,9 +61,9 @@ bool holdReceive = false;                                     // Flag to prevent
 
 IRrecv irrecv(pinr1, captureBufSize, 35);
 IRsend irsend1(pins1);
-IRsend irsend2(pins2);
-IRsend irsend3(pins3);
-IRsend irsend4(pins4);
+// IRsend irsend2(pins2);
+// IRsend irsend3(pins3);
+// IRsend irsend4(pins4);
 
 const unsigned long resetfrequency = 259200000;                // 72 hours in milliseconds for external IP reset
 static const char ntpServerName[] = "time.google.com";
@@ -864,9 +864,9 @@ void setup() {
   }
 
   irsend1.begin();
-  irsend2.begin();
-  irsend3.begin();
-  irsend4.begin();
+  // irsend2.begin();
+  // irsend3.begin();
+  // irsend4.begin();
   irrecv.enableIRIn();
   Serial.println("Ready to send and receive IR signals");
 }
@@ -996,9 +996,9 @@ String getValue(String data, char separator, int index)
 IRsend pickIRsend (int out) {
   switch (out) {
     case 1: return irsend1;
-    case 2: return irsend2;
-    case 3: return irsend3;
-    case 4: return irsend4;
+    // case 2: return irsend2;
+    // case 3: return irsend3;
+    // case 4: return irsend4;
     default: return irsend1;
   }
 }
@@ -1081,10 +1081,10 @@ void sendHeader(int httpcode) {
   server->sendContent("              <a href='http://" + String(host_name) + ".local" + ":" + String(port) + "'>Hostname <span class='badge'>" + String(host_name) + ".local" + ":" + String(port) + "</span></a></li>\n");
   server->sendContent("            <li class='active'>\n");
   server->sendContent("              <a href='http://" + WiFi.localIP().toString() + ":" + String(port) + "'>Local <span class='badge'>" + WiFi.localIP().toString() + ":" + String(port) + "</span></a></li>\n");
-  server->sendContent("            <li class='active'>\n");
-  server->sendContent("              <a href='http://" + externalIP() + ":" + String(port) + "'>External <span class='badge'>" + externalIP() + ":" + String(port) + "</span></a></li>\n");
-  server->sendContent("            <li class='active'>\n");
-  server->sendContent("              <a>MAC <span class='badge'>" + String(WiFi.macAddress()) + "</span></a></li>\n");
+  // server->sendContent("            <li class='active'>\n");
+  // server->sendContent("              <a href='http://" + externalIP() + ":" + String(port) + "'>External <span class='badge'>" + externalIP() + ":" + String(port) + "</span></a></li>\n");
+  // server->sendContent("            <li class='active'>\n");
+  // server->sendContent("              <a>MAC <span class='badge'>" + String(WiFi.macAddress()) + "</span></a></li>\n");
   server->sendContent("          </ul>\n");
   server->sendContent("        </div>\n");
   server->sendContent("      </div><hr />\n");
@@ -1185,10 +1185,10 @@ void sendHomePage(String message, String header, int type, int httpcode) {
   server->sendContent("        <div class='col-md-12'>\n");
   server->sendContent("          <ul class='list-unstyled'>\n");
   server->sendContent("            <li><span class='badge'>GPIO " + String(pinr1) + "</span> Receiving </li>\n");
-  server->sendContent("            <li><span class='badge'>GPIO " + String(pins1) + "</span> Transmitter 1 </li>\n");
-  server->sendContent("            <li><span class='badge'>GPIO " + String(pins2) + "</span> Transmitter 2 </li>\n");
-  server->sendContent("            <li><span class='badge'>GPIO " + String(pins3) + "</span> Transmitter 3 </li>\n");
-  server->sendContent("            <li><span class='badge'>GPIO " + String(pins4) + "</span> Transmitter 4 </li></ul>\n");
+  server->sendContent("            <li><span class='badge'>GPIO " + String(pins1) + "</span> Transmitter 1 </li></ul>\n");
+  // server->sendContent("            <li><span class='badge'>GPIO " + String(pins2) + "</span> Transmitter 2 </li>\n");
+  // server->sendContent("            <li><span class='badge'>GPIO " + String(pins3) + "</span> Transmitter 3 </li>\n");
+  // server->sendContent("            <li><span class='badge'>GPIO " + String(pins4) + "</span> Transmitter 4 </li></ul>\n");
   server->sendContent("        </div>\n");
   server->sendContent("      </div>\n");
   sendFooter();
